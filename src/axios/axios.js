@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const BASE_URL = 'https://dull-bear-trench-coat.cyclic.app'
+const BASE_URL = 'https://dull-bear-trench-coat.cyclic.app '
 
 export default axios.create({
   baseURL: BASE_URL,

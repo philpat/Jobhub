@@ -2,6 +2,7 @@ import React, {useState, useContext} from 'react'
 import { Link } from 'react-router-dom';
 import UserContext from './../context/UserContext'
 import axios from './../axios/axios';
+import CircularProgress from '@mui/joy/CircularProgress';
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false)
@@ -23,14 +24,14 @@ const Login = () => {
         email,
         password,
       };
-      const response = await axios.post('api/auth/signin', JSON.stringify(data));
+      const response = await axios.post('api/auth/signin', (data));
       setLoading(false);
       
         console.log(response.data)
         if (response) {
           localStorage.setItem('loginUser', JSON.stringify(response?.data));
           
-          window.location.href = "/jobs";
+          window.location.href = "/dashboard";
         }
      
     }catch(error){
@@ -91,7 +92,9 @@ const Login = () => {
               </div>
               <a href="#" className="text-xs text-[#FF7622] hover:underline ">Forgot your password?</a>
             </div>
-            <button className="bg-[#FF7622] py-2 text-white rounded-md font-semibold" onClick={handleLogin}>LOG IN</button>
+            <button className="bg-[#FF7622] py-2 text-white rounded-md font-semibold" 
+            onClick={handleLogin}>
+              {loading ? <CircularProgress color="neutral" size="sm"/> : 'LOGIN'} </button>
             <div className="flex items-center justify-center">
               <span className="text-gray-400">Don't have an account? </span> 
               <Link to='/signup' className="text-[#FF7622] text-sm font-semibold hover:underline pl-2"> SIGN UP</Link>

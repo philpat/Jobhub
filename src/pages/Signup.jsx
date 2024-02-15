@@ -1,9 +1,11 @@
 import React, { useState, useContext } from 'react'
 import { Link } from 'react-router-dom';
+import { Select, Input, Option } from "@material-tailwind/react";
 import axios from './../axios/axios';
 import CircularProgress from '@mui/joy/CircularProgress';
 import Swal from 'sweetalert2';
 import UserContext from '../context/UserContext'
+// import Register from './Register';
 
 
 
@@ -26,24 +28,27 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [errMsg, setErrMsg] = useState('');
 
-  const handleRegister = async(e)=>{
-    const [loginUser, setLoginUser] = useContext(UserContext)
+  // const history = useHistory();
+
+  const { setLoginUser } = useContext(UserContext);
+  const handleRegister = async (e) => {
+
     e.preventDefault()
     if (!firstName || !lastName || !email || !password || !password_confirmation || !role) {
       setErrMsg('All fields are required');
       return;
     }
-    if (password.length < 8 ) {
+    if (password.length < 8) {
       setErrMsg('Password must be atleast 8 characters long');
       return;
     }
-    if (password !== password_confirmation ) {
+    if (password !== password_confirmation) {
       setErrMsg('Password do not match');
       return;
     }
-    try{
+    try {
       setLoading(true);
-      const data={
+      const data = {
         firstName,
         lastName,
         email,
@@ -51,45 +56,45 @@ const Signup = () => {
         password_confirmation,
         role
       }
-      const response = await axios.post('api/auth/signup', JSON.stringify(data))
+      const response = await axios.post('api/auth/signup', data)
       setLoading(false);
       console.log(response.data)
-      .then((response) => {
-        if (response.isConfirmed) {
-          Swal.fire({
-            text: "Registration successful!",
-            icon: "success",
-            confirmButtonColor: "#3085d6",
-            confirmButtonText: "Ok",
-          })
-          window.location.href = "/login";
-        }
-      });
-    }catch(error){
+        .then((response) => {
+          if (response.status === 201) {
+            Swal.fire({
+              text: "Registration successful!",
+              icon: "success",
+              confirmButtonColor: "#3085d6",
+              confirmButtonText: "Ok",
+            })
+            // window.location.href ='/login'
+          }
+        });
+    } catch (error) {
       console.log(error)
       setLoading(false);
       setErrMsg(error.response.data.message);
-      
+
     }
   }
-  
-  
+
+
   return (
     <div className="bg-[#121223] h-screen">
       <div className="flex flex-col justify-center items-center  h-screen px-3 md:px-0">
-        <div className="flex flex-col w-full max-w-md p-6 rounded-md sm:p-10 bg-white text-gray-900">
+        <div className="flex flex-col w-full max-w-lg p-6 rounded-md sm:p-10 bg-white text-gray-900">
           <form action="" className="flex flex-col gap-3">
-          <p
-          className={
-            errMsg
-              ? 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-2 col-span-full'
-              : 'hidden'
-          }
-          aria-live='assertive'
-          role='alert'
-        >
-          {errMsg}
-        </p>
+            <p
+              className={
+                errMsg
+                  ? 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-2 col-span-full'
+                  : 'hidden'
+              }
+              aria-live='assertive'
+              role='alert'
+            >
+              {errMsg}
+            </p>
             <div className=" text-center ">
               <h1 className=" text-3xl font-bold">SIGN UP</h1>
               <p className="text-sm text-gray-400">Please sign up to get started</p>
@@ -98,29 +103,66 @@ const Signup = () => {
 
               <div className="flex flex-col flex-1">
                 <label htmlFor="name" className="text-sm font-medium">FirstName</label>
-                <input type="text" 
-                onChange ={(event)=>setFirstName(event.target.value)}
-                id="fname" placeholder="John " className="p-2 rounded bg-slate-100 " />
+                {/* <input type="text"
+                  onChange={(event) => setFirstName(event.target.value)}
+                  id="fname" placeholder="John " className="p-2 rounded bg-slate-100 " /> */}
+
+                <Input
+                  type="text"
+                  onChange={(event) => setFirstName(event.target.value)}
+                  placeholder="John"
+                  className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  containerProps={{ className: "min-w-[100px]" }}
+                />
               </div>
               <div className="flex flex-col flex-1">
                 <label htmlFor="name" className="text-sm font-medium">Last Name</label>
-                <input type="text" 
-                onChange= {(event)=>setLastName(event.target.value)}
-                id="lname" placeholder=" Doe" className="p-2 rounded bg-slate-100 " />
+                {/* <input type="text"
+                  onChange={(event) => setLastName(event.target.value)}
+                  id="lname" placeholder=" Doe" className="p-2 rounded bg-slate-100 " /> */}
+                <Input
+                  type="text"
+                  onChange={(event) => setLastName(event.target.value)}
+                  placeholder="Doe"
+                  className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  containerProps={{ className: "min-w-[100px]" }}
+                />
+
               </div>
             </div>
             <div className="flex flex-col">
               <label htmlFor="email" className="text-sm font-medium">Email</label>
-              <input type="email" 
-              onChange={(event)=>setEmail(event.target.value)}
-              id="email" placeholder="example@gmail.com" className="p-2 rounded bg-slate-100 " />
+              <Input
+                type="email"
+                onChange={(event) => setEmail(event.target.value)}
+                placeholder="example@gmail.com"
+                className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
+                labelProps={{
+                  className: "hidden",
+                }}
+                containerProps={{ className: "min-w-[100px]" }}
+              />
             </div>
+
             <div className='grid grid-cols-1 md:grid-cols-2 gap-6'>
               <div className="flex flex-col relative">
                 <label htmlFor="password" className="text-sm font-medium">Password</label>
-                <input type={showPassword ? 'text' : 'password'}
-                onChange={(event)=>setPassword(event.target.value)}
-                id="password" placeholder="xxxxxxxx" className="p-2 rounded bg-slate-100 " />
+                <Input
+                  type={showPassword ? 'text' : 'password'}
+                  onChange={(event) => setPassword(event.target.value)}
+                  id="password" placeholder="xxxxxxxx"
+                  className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  containerProps={{ className: "min-w-[100px]" }}
+                />
                 {showPassword ? (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -151,9 +193,18 @@ const Signup = () => {
 
               <div className="flex flex-col relative">
                 <label htmlFor="confirmpassword" className="text-sm font-medium">Re-type Password</label>
-                <input type={showPassword1 ? 'text' : 'password'} 
-                onChange={(event)=>setPassword_confirmation(event.target.value)}
-                id="password1" placeholder="xxxxxxxx" className="p-2 rounded bg-slate-100 " />
+
+                <Input
+                  type={showPassword1 ? 'text' : 'password'}
+                  onChange={(event) => setPassword_confirmation(event.target.value)}
+                  id="password1" placeholder="xxxxxxxx"
+                  className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
+                  labelProps={{
+                    className: "hidden",
+                  }}
+                  containerProps={{ className: "min-w-[100px]" }}
+                />
+
                 {showPassword1 ? (
                   <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -182,30 +233,26 @@ const Signup = () => {
                 )}
               </div>
             </div>
-            <div className="flex flex-col relative">
+            <div className="flex flex-col ">
               <label htmlFor="role" className="text-sm font-medium">Role</label>
-              <select
-                className="block appearance-none w-full bg-slate-100 border border-gray-300 hover:border-gray-500 px-4 py-2 pr-8 rounded shadow leading-tight focus:outline-none focus:shadow-outline"
+              <Select label='Select role'
                 id="role"
-                onChange={(event)=>setRole(event.target.value)}
+                onChange={(event) => setRole(event.target.value)}
+                className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
+                labelProps={{
+                  className: "hidden",
+                }}
+                containerProps={{ className: "min-w-[100px]" }}
               >
-                <option value="">Please Select</option>
-                <option value="admin">Admin</option>
-                <option value="employer">Employer</option>
-                <option value="user">User</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-4 h-4 mt-5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                </svg>
-
-              </div>
+                <Option value="admin">Admin</Option>
+                <Option value="employer">Employer</Option>
+                <Option value="user">User</Option>
+              </Select>
             </div>
-            
 
-            <button className="bg-[#FF7622] py-2 my-2 text-white rounded-md font-semibold" 
-            onClick={handleRegister}>
-              {loading ? <CircularProgress color="neutral" size="sm"/> : 'SIGNUP'}
+            <button className="bg-[#FF7622] py-2 my-2 text-white rounded-md font-semibold"
+              onClick={handleRegister}>
+              {loading ? <CircularProgress color="neutral" size="sm" /> : 'SIGNUP'}
             </button>
             <div className="flex items-center justify-center">
               <span className="text-gray-400">Already have an account? </span>
