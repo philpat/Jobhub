@@ -1,10 +1,20 @@
-import React, {useState, useContext} from 'react'
-import { Link } from 'react-router-dom';
+import React, {useState, useContext, useEffect, useRef} from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import UserContext from './../context/UserContext'
 import axios from './../axios/axios';
 import CircularProgress from '@mui/joy/CircularProgress';
 
 const Login = () => {
+
+  const roles = [
+    { name: 'admin', to: '/admin' },
+    { name: 'employer', to: '/employer' },
+    { name: 'user', to: '/user-dashboard' },
+  ];
+
+  const Navigate = useNavigate();
+  const location = useLocation();
+
   const [showPassword, setShowPassword] = useState(false)
   const togglePassword =()=>{
     setShowPassword(!showPassword)
@@ -14,30 +24,47 @@ const Login = () => {
   const [password, setPassword]= useState('')
   const [loading, setLoading] = useState(false);
 
-  const {setUser} = useContext(UserContext)
+  const {setLoginUser, loginUser} = useContext(UserContext)
 
-  const handleLogin = async (e)=>{
-    e.preventDefault()
-    try{
+  const handleLogin = async (e) => {
+    e.preventDefault();   
+  
+    try {
       setLoading(true);
       const data = {
         email,
         password,
       };
-      const response = await axios.post('api/auth/signin', (data));
-      setLoading(false);
-      
+      const response = await axios.post('api/auth/signin', data);
+      console.log(response);
+      setLoading(false);  
+      if (response) {
+        localStorage.setItem('loginUser', JSON.stringify(response?.data));
+        setLoginUser(response?.data);
+
         console.log(response.data)
-        if (response) {
-          localStorage.setItem('loginUser', JSON.stringify(response?.data));
-          
-          window.location.href = "/dashboard";
+        localStorage.setItem('cookie', JSON.stringify(response))
+
+        if (response?.data?.role === 'admin') {
+          Navigate('/admin');
+        } else if (response?.data?.role === 'employer') {
+          Navigate('/employer');
+        } else if (response?.data?.role === 'user') {
+          Navigate('/user');
         }
-     
-    }catch(error){
-      console.log(error)
     }
-  }
+      
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    if (loginUser) {
+      Navigate(roles.find((role) => role.name === loginUser?.data?.role)?.to, {
+        replace: true,
+      });
+    }
+  }, [loginUser, Navigate]);
   return (
     <div className = "bg-[#121223] h-screen">
       <div className="flex flex-col justify-center items-center  h-screen px-3 md:px-0">

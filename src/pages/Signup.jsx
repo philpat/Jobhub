@@ -5,19 +5,34 @@ import axios from './../axios/axios';
 import CircularProgress from '@mui/joy/CircularProgress';
 import Swal from 'sweetalert2';
 import UserContext from '../context/UserContext'
-// import Register from './Register';
-
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+// import process from 'process';
 
 
 const Signup = () => {
+
+  const [open, setOpen] = React.useState(false);
+
+  const handleClose = (event, reason) => {
+    if (reason === 'clickaway') {
+      return;
+    }
+    setOpen(false); // Assuming setOpen is used to control the visibility of the Snackbar
+  };
+  
+
+
   const [showPassword, setShowPassword] = useState(false)
   const [showPassword1, setShowPassword1] = useState(false)
+
   const togglePassword = () => {
     setShowPassword(!showPassword)
   }
   const togglePasswordConfirm = () => {
     setShowPassword1(!showPassword1)
   }
+
   const [firstName, setFirstName] = useState('')
   const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
@@ -30,9 +45,22 @@ const Signup = () => {
 
   // const history = useHistory();
 
-  const { setLoginUser } = useContext(UserContext);
-  const handleRegister = async (e) => {
+const admin_key = import.meta.env.VITE_ADMIN_KEY;
 
+  const data = {
+    firstName,
+    lastName,
+    email,
+    password,
+    password_confirmation,
+    role,
+    admin_key
+  }
+
+  const { setLoginUser } = useContext(UserContext);
+
+  
+  const handleRegister = async (e) => {
     e.preventDefault()
     if (!firstName || !lastName || !email || !password || !password_confirmation || !role) {
       setErrMsg('All fields are required');
@@ -48,32 +76,31 @@ const Signup = () => {
     }
     try {
       setLoading(true);
-      const data = {
-        firstName,
-        lastName,
-        email,
-        password,
-        password_confirmation,
-        role
-      }
-      const response = await axios.post('api/auth/signup', data)
+
+      const response = await axios.post('/api/auth/signup', data)
       setLoading(false);
       console.log(response.data)
-        .then((response) => {
-          if (response.status === 201) {
-            Swal.fire({
-              text: "Registration successful!",
-              icon: "success",
-              confirmButtonColor: "#3085d6",
-              confirmButtonText: "Ok",
-            })
-            // window.location.href ='/login'
-          }
-        });
+
+      if (response.status === 201) {
+        Swal.fire({
+          text: "Registration successful!",
+          icon: "success",
+          confirmButtonColor: "#3085d6",
+          confirmButtonText: "Ok",
+        })
+        setErrMsg('')
+        // window.location.href ='/login'
+      };
     } catch (error) {
-      console.log(error)
+      console.log(error.message)
       setLoading(false);
-      setErrMsg(error.response.data.message);
+      Swal.fire({
+        text: error.message,
+        icon: "error",
+        confirmButtonColor: "#3085d6",
+        confirmButtonText: "Ok",
+      })
+      // setErrMsg(error.message);
 
     }
   }
@@ -83,8 +110,8 @@ const Signup = () => {
     <div className="bg-[#121223] h-screen">
       <div className="flex flex-col justify-center items-center  h-screen px-3 md:px-0">
         <div className="flex flex-col w-full max-w-lg p-6 rounded-md sm:p-10 bg-white text-gray-900">
-          <form action="" className="flex flex-col gap-3">
-            <p
+          <form action="" onSubmit={(e) => handleRegister(e)} className="flex flex-col gap-3">
+            {/* <p
               className={
                 errMsg
                   ? 'bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-2 col-span-full'
@@ -94,7 +121,20 @@ const Signup = () => {
               role='alert'
             >
               {errMsg}
-            </p>
+            </p> */}
+
+            <Snackbar
+              open={errMsg ? true : false}
+              autoHideDuration={5000}
+              onClose={handleClose}
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+            >
+              <Alert severity="error" onClose={handleClose}>
+                {errMsg}
+              </Alert>
+            </Snackbar>
+
+
             <div className=" text-center ">
               <h1 className=" text-3xl font-bold">SIGN UP</h1>
               <p className="text-sm text-gray-400">Please sign up to get started</p>
@@ -110,6 +150,7 @@ const Signup = () => {
                 <Input
                   type="text"
                   onChange={(event) => setFirstName(event.target.value)}
+                  value={firstName}
                   placeholder="John"
                   className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
                   labelProps={{
@@ -126,6 +167,7 @@ const Signup = () => {
                 <Input
                   type="text"
                   onChange={(event) => setLastName(event.target.value)}
+                  value={lastName}
                   placeholder="Doe"
                   className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
                   labelProps={{
@@ -141,6 +183,7 @@ const Signup = () => {
               <Input
                 type="email"
                 onChange={(event) => setEmail(event.target.value)}
+                value={email}
                 placeholder="example@gmail.com"
                 className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
                 labelProps={{
@@ -156,6 +199,7 @@ const Signup = () => {
                 <Input
                   type={showPassword ? 'text' : 'password'}
                   onChange={(event) => setPassword(event.target.value)}
+                  value={password}
                   id="password" placeholder="xxxxxxxx"
                   className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
                   labelProps={{
@@ -197,6 +241,7 @@ const Signup = () => {
                 <Input
                   type={showPassword1 ? 'text' : 'password'}
                   onChange={(event) => setPassword_confirmation(event.target.value)}
+                  value={password_confirmation}
                   id="password1" placeholder="xxxxxxxx"
                   className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
                   labelProps={{
@@ -237,21 +282,22 @@ const Signup = () => {
               <label htmlFor="role" className="text-sm font-medium">Role</label>
               <Select label='Select role'
                 id="role"
-                onChange={(event) => setRole(event.target.value)}
+                onChange={(selectedValue) => setRole(selectedValue)}
+
                 className="!border !border-gray-300 bg-slate-100 rounded  text-gray-900 shadow shadow-gray-900/5  placeholder:text-gray-500 focus:!border-gray-900  "
                 labelProps={{
                   className: "hidden",
                 }}
                 containerProps={{ className: "min-w-[100px]" }}
               >
-                <Option value="admin">Admin</Option>
-                <Option value="employer">Employer</Option>
-                <Option value="user">User</Option>
+                <Option value='admin'>Admin</Option>
+                <Option value='employer'>Employer</Option>
+                <Option value='user'>User</Option>
               </Select>
             </div>
 
             <button className="bg-[#FF7622] py-2 my-2 text-white rounded-md font-semibold"
-              onClick={handleRegister}>
+              type='submit'>
               {loading ? <CircularProgress color="neutral" size="sm" /> : 'SIGNUP'}
             </button>
             <div className="flex items-center justify-center">
